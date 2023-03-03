@@ -1,0 +1,260 @@
+// java -jar Dipendenze\CUP\java-cup-11b.jar -destdir src srcjflexcup/parser.cup
+// java -jar Dipendenze\CUP\java-cup-11b.jar -dump -destdir src srcjflexcup/parser.cup 2> dumpfile
+import java_cup.runtime.*;
+import nodes.ExprNode;
+import nodes.leafs.*;
+import nodes.moreops.*;
+import nodes.statements.*;
+import nodes.ops.*;
+import java.util.ArrayList;
+
+terminal MAIN, IF, THEN, ELSE, WHILE, END, LOOP,
+         FUN,
+         OUTPAR, VAR, OUT, INTEGER, REAL, STRING, BOOL,
+         ASSIGN, PLUS, MINUS, TIMES, DIVINT, DIV, POW, STR_CONCAT, EQ, NE, LT, LE, GT, GE, AND, OR, NOT, TRUE, FALSE,
+         READ, WRITE, WRITELN, WRITET, WRITEB,
+         RETURN,
+         LPAR, RPAR, COLON, SEMI, COMMA,
+         ID, INTEGER_CONST, REAL_CONST, STRING_CONST;
+
+nonterminal Program, VarDeclList, Main, FunList, VarDecl, Type, IdListInit, IdListInitObbl, Const, Fun,
+            ParamDeclList, NonEmptyParamDeclList, ParDecl, StatList, Stat, IfStat, Else, WhileStat, ReadStat,
+            IdList, WriteStat, AssignStat, CallFun, ExprList, Expr;
+
+/* Precedenze */
+precedence left OR;
+precedence left AND;
+precedence right NOT;
+precedence nonassoc EQ, NE, LT, LE, GT, GE;
+precedence left STR_CONCAT;
+precedence left PLUS;
+precedence left MINUS;
+precedence left TIMES;
+precedence left DIV;
+precedence left DIVINT;
+precedence right POW;
+precedence left LPAR;
+precedence left RPAR;
+
+//************* Specifica Grammaticale *************
+
+Program ::= VarDeclList:varDeclList FunList:funList Main:main {: RESULT = new Program((ArrayList<VarDecl>) varDeclList, (ArrayList<Fun>) funList, (Body) main); :};
+
+VarDeclList ::= /* empty */                   {: RESULT = null; :}
+    | VarDecl:varDecl VarDeclList:varDeclList {:
+        if (varDeclList == null) {
+            varDeclList = new ArrayList<VarDecl>();
+        }
+        ((ArrayList<VarDecl>) varDeclList).add(0, (VarDecl) varDecl);
+        RESULT = varDeclList;
+    :};
+
+Main ::= MAIN VarDeclList:varDeclList StatList:statList END MAIN SEMI {: RESULT = new Body((ArrayList<VarDecl>) varDeclList, (ArrayList<Stat>) statList); :};
+
+FunList ::= /* empty */       {: RESULT = null; :}
+    | Fun:fun FunList:funList {:
+        if (funList == null) {
+            funList = new ArrayList<Fun>();
+        }
+        ((ArrayList<Fun>) funList).add(0, (Fun) fun);
+        RESULT = funList;
+    :};
+
+VarDecl ::= Type:type IdListInit:idListInit SEMI {: RESULT = new VarDecl((Type) type, (IdListInit) idListInit); :}
+    | VAR IdListInitObbl:idListInitObbl SEMI     {: RESULT = new VarDecl((IdListInitObbl) idListInitObbl); :};
+
+Type ::= INTEGER {: RESULT = new Type("integer"); :}
+    | BOOL       {: RESULT = new Type("bool"); :}
+    | REAL       {: RESULT = new Type("real"); :}
+    | STRING     {: RESULT = new Type("string"); :};
+
+IdListInit ::= ID:val   {: RESULT = new IdListInit((IdLeaf) new IdLeaf(String.valueOf(val)), (ExprNode) null); :}
+    | IdListInit:idListInit COMMA ID:val {:
+        ((IdListInit) idListInit).addElement((IdLeaf) new IdLeaf(String.valueOf(val)), (ExprNode) null);
+        RESULT = idListInit;
+    :}
+    | ID:val ASSIGN Expr:expr {: RESULT = new IdListInit((IdLeaf) new IdLeaf(String.valueOf(val)), (ExprNode) expr); :}
+    | IdListInit:idListInit COMMA ID:val ASSIGN Expr:expr {:
+        ((IdListInit) idListInit).addElement((IdLeaf) new IdLeaf(String.valueOf(val)), (ExprNode) expr);
+        RESULT = idListInit;
+    :};
+
+/* Serve nel caso in cui abbiamo 'VAR', cioè "var c := 1". */
+IdListInitObbl ::= ID:val ASSIGN Const:constLeaf {: RESULT = new IdListInitObbl((IdLeaf) new IdLeaf(String.valueOf(val)), (Const) constLeaf); :}
+    | IdListInitObbl:idListInitObbl COMMA ID:val ASSIGN Const:constLeaf {:
+	    ((IdListInitObbl) idListInitObbl).addElement((IdLeaf) new IdLeaf(String.valueOf(val)), (Const) constLeaf);
+	    RESULT = idListInitObbl;
+    :};
+
+Const ::= INTEGER_CONST:intConst {: RESULT = new Const("integer", String.valueOf(intConst)); :}
+    | REAL_CONST:realConst       {: RESULT = new Const("real", String.valueOf(realConst)); :}
+    | TRUE                       {: RESULT = new Const("bool", "true"); :}
+    | FALSE                      {: RESULT = new Const("bool", "false"); :}
+    | STRING_CONST:strConst      {: RESULT = new Const("string", String.valueOf(strConst)); :}
+    | MINUS INTEGER_CONST:val    {: RESULT = new Const("integer", "-" + String.valueOf(val)); :}
+    | MINUS REAL_CONST:val       {: RESULT = new Const("real", "-" + String.valueOf(val)); :};
+
+Fun ::= FUN ID:val LPAR ParamDeclList:paramDeclList RPAR COLON Type:type VarDeclList:varDeclList StatList:statList END FUN SEMI {:
+        RESULT = new Fun((IdLeaf) new IdLeaf(String.valueOf(val)), (ArrayList<ParDecl>) paramDeclList, (Type) type,
+                (Body) new Body((ArrayList<VarDecl>) varDeclList, (ArrayList<Stat>) statList));
+    :}
+    | FUN ID:val LPAR ParamDeclList:paramDeclList RPAR VarDeclList:varDeclList StatList:statList END FUN SEMI {:
+        RESULT = new Fun((IdLeaf) new IdLeaf(String.valueOf(val)), (ArrayList<ParDecl>) paramDeclList,
+                 (Body) new Body((ArrayList<VarDecl>) varDeclList, (ArrayList<Stat>) statList));
+    :};
+
+ParamDeclList ::= /* empty */                     {: RESULT = null; :}
+    | NonEmptyParamDeclList:notEmptyParamDeclList {: RESULT = notEmptyParamDeclList; :};
+
+NonEmptyParamDeclList ::= ParDecl:parDecl {:
+        ArrayList<ParDecl> notEmptyParamDeclList = new ArrayList<ParDecl>();
+        ((ArrayList<ParDecl>) notEmptyParamDeclList).add((ParDecl) parDecl);
+        RESULT = notEmptyParamDeclList;
+    :}
+    | NonEmptyParamDeclList:notEmptyParamDeclList COMMA ParDecl:parDecl {:
+        if (notEmptyParamDeclList == null) {
+            notEmptyParamDeclList = new ArrayList<ParDecl>();
+        }
+        ((ArrayList<ParDecl>) notEmptyParamDeclList).add((ParDecl) parDecl);
+        RESULT = notEmptyParamDeclList;
+    :};
+
+ParDecl ::= Type:type ID:val {: RESULT = new ParDecl(false, (Type) type, (IdLeaf) new IdLeaf(String.valueOf(val), false)); :}
+    | OUT Type:type ID:val   {: RESULT = new ParDecl(true, (Type) type, (IdLeaf) new IdLeaf(String.valueOf(val), true)); :};
+
+StatList ::= /* empty */          {: RESULT = null; :}
+    | Stat:stat StatList:statList {:
+        if (statList == null) {
+            statList = new ArrayList<Stat>();
+        }
+        ((ArrayList<Stat>) statList).add(0, (Stat) stat);
+        RESULT = statList;
+    :};
+
+Stat ::= IfStat:ifStat SEMI         {: RESULT = new Stat((IfStat) ifStat); :}
+    | WhileStat:whileStat SEMI      {: RESULT = new Stat((WhileStat) whileStat); :}
+    | ReadStat:readStat SEMI        {: RESULT = new Stat((ReadStat) readStat); :}
+    | WriteStat:writeStat SEMI      {: RESULT = new Stat((WriteStat) writeStat); :}
+    | AssignStat:assignStat SEMI    {: RESULT = new Stat((AssignStat) assignStat); :}
+    | CallFun:callFun SEMI          {: RESULT = new Stat((CallFun) callFun); :}
+    | RETURN Expr:expr SEMI         {: RESULT = new Stat((ExprNode) expr); :};
+
+IfStat ::= IF Expr:expr THEN VarDeclList:varDeclList StatList:statList Else:elseStat END IF {:
+        RESULT = new IfStat((ExprNode) expr,
+                            new Body((ArrayList<VarDecl>) varDeclList, (ArrayList<Stat>) statList),
+                            (ElseStat) elseStat
+                           );
+    :};
+
+Else ::= /* empty */                                 {: RESULT = null; :}
+    | ELSE VarDeclList:varDeclList StatList:statList {:
+        RESULT = new ElseStat(new Body((ArrayList<VarDecl>) varDeclList, (ArrayList<Stat>) statList));
+    :};
+
+WhileStat ::= WHILE Expr:expr LOOP VarDeclList:varDeclList StatList:statList END LOOP {:
+        RESULT = new WhileStat((ExprNode) expr, new Body((ArrayList<VarDecl>) varDeclList, (ArrayList<Stat>) statList));
+    :};
+
+ReadStat ::= READ IdList:idList Expr:expr {: RESULT = new ReadStat((ArrayList<IdLeaf>) idList, (ExprNode) expr); :} // Expr deve essere di tipo stringa
+    | READ IdList:idList                  {: RESULT = new ReadStat((ArrayList<IdLeaf>) idList, (ExprNode) null); :};
+
+IdList ::= ID:val   {:
+        ArrayList<IdLeaf> idList = new ArrayList<IdLeaf>();
+        ((ArrayList<IdLeaf>) idList).add(0, new IdLeaf(String.valueOf(val)));
+        RESULT = idList;
+    :}
+    | IdList:idList COMMA ID:val {:
+	    ((ArrayList<IdLeaf>) idList).add(0, new IdLeaf(String.valueOf(val)));
+	    RESULT = idList;
+    :};
+
+WriteStat ::=  WRITE Expr:expr {: RESULT = new WriteStat("WriteOP", (ExprNode) expr); :}
+    | WRITELN Expr:expr        {: RESULT = new WriteStat("WriteLn", (ExprNode) expr); :}
+    | WRITET  Expr:expr        {: RESULT = new WriteStat("WriteT", (ExprNode) expr); :}
+    | WRITEB  Expr:expr        {: RESULT = new WriteStat("WriteB", (ExprNode) expr); :};
+
+AssignStat ::= ID:val ASSIGN Expr:expr {:
+        RESULT = new AssignStat((IdLeaf) new IdLeaf(String.valueOf(val)), (ExprNode) expr);
+    :};
+
+CallFun ::= ID:val LPAR ExprList:exprList RPAR {:
+        RESULT = new CallFun(new IdLeaf(String.valueOf(val)), (ArrayList<ExprNode>) exprList);
+    :}
+    | ID:val LPAR RPAR {:
+        RESULT = new CallFun(new IdLeaf(String.valueOf(val)), (ArrayList<ExprNode>) null);
+    :};
+
+ExprList ::= Expr:expr {:
+        ArrayList<ExprNode> exprList = new ArrayList<ExprNode>();
+        ((ArrayList<ExprNode>) exprList).add(0, (ExprNode) expr);
+        RESULT = exprList;
+    :}
+    | Expr:expr COMMA ExprList:exprList {:
+        ((ArrayList<ExprNode>) exprList).add(0, (ExprNode) expr);
+        RESULT = exprList;
+    :}
+    | OUTPAR ID:val {:
+        ArrayList<ExprNode> exprList = new ArrayList<ExprNode>();
+        ((ArrayList<ExprNode>) exprList).add(0, (IdLeaf) new IdLeaf(String.valueOf(val), true));
+        RESULT = exprList;
+    :}
+    | OUTPAR ID:val COMMA ExprList:exprList {:
+        ((ArrayList<ExprNode>) exprList).add(0, (IdLeaf) new IdLeaf(String.valueOf(val), true));
+        RESULT = exprList;
+    :};
+
+Expr ::= TRUE                   {: RESULT = new Const("bool", "true"); :}
+	| FALSE                     {: RESULT = new Const("bool", "false"); :}
+	| INTEGER_CONST:val         {: RESULT = new Const("integer", String.valueOf(val)); :}
+	| REAL_CONST:val            {: RESULT = new Const("real", String.valueOf(val)); :}
+	| STRING_CONST:val          {: RESULT = new Const("string", String.valueOf(val)); :}
+	| ID:val                    {: RESULT = new IdLeaf(String.valueOf(val)); :}
+	| CallFun:callFun           {: RESULT = callFun; :}
+	| Expr:e1 PLUS Expr:e2      {: RESULT = new BinaryOP("PlusOP", (ExprNode) e1, (ExprNode) e2); :}
+	| Expr:e1 MINUS Expr:e2     {: RESULT = new BinaryOP("MinusOP", (ExprNode) e1, (ExprNode) e2); :}
+	| Expr:e1 TIMES Expr:e2     {: RESULT = new BinaryOP("TimesOP", (ExprNode) e1, (ExprNode) e2); :}
+	| Expr:e1 DIV Expr:e2       {: RESULT = new BinaryOP("DivOP", (ExprNode) e1, (ExprNode) e2); :}
+	| Expr:e1 DIVINT Expr:e2    {: RESULT = new BinaryOP("DivIntOP", (ExprNode) e1, (ExprNode) e2); :}
+	| Expr:e1 AND Expr:e2       {: RESULT = new BinaryOP("AndOP", (ExprNode) e1, (ExprNode) e2); :}
+	| Expr:e1 POW Expr:e2       {: RESULT = new BinaryOP("PowOP", (ExprNode) e1, (ExprNode) e2); :}
+	| Expr:e1 STR_CONCAT Expr:e2{: RESULT = new BinaryOP("StrConcatOP", (ExprNode) e1, (ExprNode) e2); :}
+	| Expr:e1 OR Expr:e2        {: RESULT = new BinaryOP("OrOP", (ExprNode) e1, (ExprNode) e2); :}
+	| Expr:e1 GT Expr:e2        {: RESULT = new BinaryOP("GtOP", (ExprNode) e1, (ExprNode) e2); :}
+	| Expr:e1 GE Expr:e2        {: RESULT = new BinaryOP("GeOP", (ExprNode) e1, (ExprNode) e2); :}
+	| Expr:e1 LT Expr:e2        {: RESULT = new BinaryOP("LtOP", (ExprNode) e1, (ExprNode) e2); :}
+	| Expr:e1 LE Expr:e2        {: RESULT = new BinaryOP("LeOP", (ExprNode) e1, (ExprNode) e2); :}
+	| Expr:e1 EQ Expr:e2        {: RESULT = new BinaryOP("EqOP", (ExprNode) e1, (ExprNode) e2); :}
+	| Expr:e1 NE Expr:e2        {: RESULT = new BinaryOP("NeOP", (ExprNode) e1, (ExprNode) e2); :}
+	| MINUS Expr:e1             {: RESULT = new UnaryOP("UMinusOP", (ExprNode) e1); :}
+	| NOT Expr:e1               {: RESULT = new UnaryOP("NotOP", (ExprNode) e1); :}
+	| LPAR Expr:e1 RPAR         {: RESULT = new UnaryOP("ParOP", (ExprNode) e1); :};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

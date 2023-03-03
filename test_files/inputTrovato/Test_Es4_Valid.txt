@@ -1,0 +1,77 @@
+integer global := 2;
+
+fun somma (real madrid, real sociedad): real
+    real result;
+
+    result := madrid + sociedad;
+
+    return result;
+end fun;
+
+fun differenza (real madrid, real sociedad): real
+    real result;
+
+    result := madrid - sociedad;
+
+    return result;
+end fun;
+
+fun moltiplicazione (real madrid, real sociedad): real
+    real result;
+
+    result := madrid * sociedad;
+
+    return result;
+end fun;
+
+fun divisione (real madrid, real sociedad): real
+    real result;
+
+    result := madrid / sociedad;
+
+    return result;
+end fun;
+
+fun stampa(string message)
+    ?. message;
+end fun;
+
+fun stampa_menu()
+    stampa("1_addizione");
+    stampa("2_sottrazione");
+    stampa("3_moltiplicazione");
+    stampa("4_divisione");
+end fun;
+
+fun calcola_valore(real opd1, real opd2, integer operazione): real
+    if operazione = 1 then return somma(opd1,opd2); end if;
+    if operazione = 2 then return differenza(opd1,opd2); end if;
+    if operazione = 3 then return moltiplicazione(opd1,opd2); end if;
+    if operazione = 4 then return divisione(opd1,opd2); end if;
+end fun;
+
+main
+    integer continuare := 1;
+    integer operazione := 0;
+    real opd1 := 0.0;
+    real opd2 := 0.0;
+    real result := 0.0;
+
+    while continuare = 1 loop
+        stampa_menu();
+        if result > opd1 and opd1 < opd2 or opd2 >result then
+            ?. "ciao";
+        end if;
+
+        % operazione "Scegli operazione: ";
+
+        % opd1 "Digita il primo operando: ";
+        % opd2 "Digita il secondo operando: ";
+
+        result := calcola_valore(opd1,opd2,operazione);
+
+        ?. result;
+
+        % continuare "Inserisci 0 per chiudere, 1 per continuare";
+    end loop;
+end main;

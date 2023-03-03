@@ -1,0 +1,11 @@
+Fun funzione(integer a, real b, integer c):integer
+    if a = 0 then
+        return b+c;
+    end if;
+    return a;
+end Fun;
+
+main
+    real a,b,c;
+    funzione(a,b,c);
+end main;

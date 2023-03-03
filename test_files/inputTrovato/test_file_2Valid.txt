@@ -1,0 +1,262 @@
+integer global := 9;
+real global2 := 9.8;
+
+string s := "ciao";
+string s2 := "ciao2", s3 := "ciao3", s4 := "ciao4";
+var s5 := "ciao5", i1 := 1, f1 := 2.3;
+
+Fun return_string(string msg):string
+    return msg;
+end Fun;
+
+Fun somma (integer add1, integer add2): integer
+    integer result;
+
+    result := add1 + add2;
+
+    return result;
+end Fun;
+
+Fun moltiplicazione (integer fatt1, integer fatt2): integer
+    integer index := 1;
+
+    while index < fatt2 loop
+        fatt1 := fatt1 + fatt1;
+        index := index + 1;
+    end loop;
+
+    return fatt1;
+end Fun;
+
+Fun divisione_intera (integer dvd, integer dvs): integer
+    #questa funzione ritorna una divisione intera
+    integer result;
+
+    result := dvd div dvs;
+
+    return result;
+end Fun;
+
+Fun potenza(integer base, integer esp): integer
+    #*questa funzione tramite la libreria math
+    effettua l'operazione di potenza
+    sull'input#
+    integer result, ciao, a, b;
+
+    result := base^esp;
+
+    return result;
+end Fun;
+
+Fun fibonacci(integer n): integer
+    if n = 0 or n = 1 then
+        return n;
+    else
+        return fibonacci(n - 1)+fibonacci(n - 2);
+    end if;
+end Fun;
+
+Fun stampa(string message)
+    ?. message;
+end Fun;
+
+Fun stampa_menu()
+    stampa("1_somma");
+    stampa("2_moltiplicazione_somma");
+    stampa("3_divisione_intera");
+    stampa("4_potenza");
+    stampa("5_fibonacci");
+end Fun;
+
+Fun provaVoid()
+    stampa("calcolo il risultato");
+end Fun;
+
+Fun calcola_valore(integer opd1, integer opd2, integer operazione): integer
+    provaVoid();
+    if operazione = 1 then return somma(opd1,opd2); end if;
+    if operazione = 2 then return moltiplicazione(opd1,opd2); end if;
+    if operazione = 3 then return divisione_intera(opd1,opd2); end if;
+    if operazione = 4 then return potenza(opd1,opd2); end if;
+end Fun;
+
+Fun prova(out integer i,out string k,real m):integer
+    integer n := 0;
+    integer operazione;
+
+    if n = 2 then
+        if n = 32 then
+            return 23;
+        else
+            while n < 3 loop
+                if n = 3 then
+                    integer gg := 2;
+                    integer gg2 := 2 + 2;
+                    integer gg3 := gg + gg2;
+                    real gg4 := 8.9;
+                    return somma(3 , 5);
+                end if;
+                return somma(8 , 9) + n;
+            end loop;
+            return somma(8 , 9) + 12;
+        end if;
+    else
+        return 3;
+    end if;
+
+    if n >= 78 then
+        integer gg := 2;
+        integer gg2 := 2 + 2;
+        integer gg3 := gg + gg2;
+        real gg4 := 8.9;
+        % operazione "Scegli operazione: ";
+        ?. "ciao";
+        return operazione + 23;
+    end if;
+
+    return somma(3 , 4);
+
+end Fun;
+
+Fun prova_boolean(bool b):bool
+    if b then
+        return true;
+    else
+        return false;
+    end if;
+end Fun;
+
+Fun real_fun():real
+    return 4.2;
+end Fun;
+
+main
+    integer continuare := 1;
+    integer operazione := 0;
+    integer l1,l2,l3;
+    string opd1 := "Fine";
+    integer opd2 := 0;
+    integer result := 0;
+    string ciao := "ciao";
+    real m := 9.33;
+    integer a,b,c := 9;
+    integer operando1;
+    integer operando2;
+    integer id1 := 4, id2 := 3, id3 := 6;
+    var v1 := 3, v2 := 3.4, v3 := "variabile";
+    integer provaA1 := opd2, provaA2 := opd2, provaA3 := opd2;
+    integer provaAssign := opd2;
+    var min1 := -2, min2 := "-2", min3 := -3.3;
+    real madridus := -3.3;
+    bool boolean_var := prova_boolean(true);
+    string stringauno,stringdue,stringatre;
+    string str1nm := "2", str2m, str3nm := "hey", str4m;
+    string conststr1 := "w", conststr2 := "w2";
+
+    string exprConcat := "" & 3+2 & " + " & result & continuare + operazione;
+
+    integer p := prova(@opd2,@opd1,m);
+    integer minusVar := -2;
+
+    integer exprplus := (3+4)-2+15+(fibonacci(4)+(somma(5,4)+moltiplicazione(4,4)));
+    string concat1 := "ciao" & 0;
+    string concat2 := ciao & ciao &  (4 + 6) + 4;
+    string concat3 := ciao & return_string(" messaggio");
+    string concat4 := "ciao" & return_string(" messaggio");
+    string concat5 := ciao & min1;
+    string concat6 := ciao & provaA1;
+    string concat7 := "ciao" & " " & "come" & " " & "stai?";
+    string come := "come";
+    string stai := "stai";
+    string concat8 := "ciao" & " " & come & " " & stai;
+    integer due := 2;
+    integer tre := 3;
+    real cinque := 5.0;
+    string concat9 := "Risultato: " & due & " + " & tre & " fa " & cinque;
+    string concat10 := "" & due & tre;
+    string concatForAssign := "" & 3+2 & " + " & result & continuare + operazione & fibonacci(6);
+    string concatForAssign2 := "" & 3+2 & " + " & result & continuare + operazione & fibonacci(6) & prova_boolean(true);
+    string str := "ciao";
+    string str1 := "hey", str2 := "hey2"&"hey3", str3, callfunstr := return_string("msg"), varstringexpr := str;
+    var str4 := "hey3", str5 := "hey4", num := 3;
+
+    % opd1, opd2;
+    % opd1, opd2, m "inserisci 2 operandi, fibonacci(0) =" & fibonacci(0);
+
+    str3 := "hey5";
+    ?. str & str1 & str2 & str3 & str4 & str5 & num;
+    % str "assign to str that now is " & str & " and not " & num;
+    % str3 "assign to str3 ";
+    % str5 "assign to str5 ";
+    ?. str;
+    ?. str3;
+    ?. str5;
+
+    ?. "ciao" & 0;
+    ?. ciao & ciao;
+    ?. ciao & return_string(" messaggio");
+    ?. "ciao" & return_string(" messaggio");
+    ?. ciao & min1;
+    ?. ciao & provaA1;
+    ?. "ciao" & " " & "come" & " " & "stai?";
+    ?. "ciao" & " " & come & " " & stai;
+    ?. "Risultato: " & due & " + " & tre & " fa " & cinque;
+    ?. concat10;
+    ?. "" & opd2 & " + " & result & 4.9 + 6.7 + 4.2;
+    ?. "" & 3+2 & " + " & result & continuare + operazione & fibonacci(6);
+    ?. "" & 3+2 & " + " & result & continuare + operazione & fibonacci(6) & prova_boolean(true);
+
+    % concatForAssign "ciao" & 0;
+    % concatForAssign ciao & ciao;
+    % concatForAssign ciao & return_string(" messaggio");
+    % concatForAssign "ciao" & return_string(" messaggio");
+    % concatForAssign ciao & min1;
+    % concatForAssign ciao & provaA1;
+    % concatForAssign "ciao" & " " & "come" & " " & "stai?";
+    % concatForAssign "ciao" & " " & come & " " & stai;
+    % concatForAssign "Risultato: " & due & " + " & tre & " fa " & cinque;
+    % concatForAssign concat10;
+    % concatForAssign "" & opd2 & " + " & result & 3 + 4 +32.5;
+    % concatForAssign "" & 3+2 & " + " & result & continuare + operazione & fibonacci(6);
+    % concatForAssign "" & 3+2 & " + " & result & continuare + operazione & fibonacci(6) & prova_boolean(true);
+
+    prova_boolean(true);
+    prova_boolean(false);
+
+    while continuare = 1 loop
+        integer gg := 2;
+        integer gg2 := 2 + 2;
+        integer gg3 := gg + gg2;
+        real gg4 := 8.9;
+        stampa_menu();
+
+        % operazione "Scegli operazione: ";
+
+        if (operazione = 5 and (operazione >= 3 or (gg<3 and gg2>4))) then
+            integer gg := 2;
+            integer gg2 := 2-2;
+            integer gg3 := gg + gg2;
+            real gg4 := 8.9;
+            % operando1 "Digita il numero";
+            result := fibonacci(operando1);
+            stampa("Risultato: " & result);
+
+            % continuare "1 per continuare, altro per chiudere";
+        else
+            integer gg := 2;
+            integer gg2 := 2 + 2;
+            integer gg3 := gg + gg2;
+            real gg4 := 8.9;
+            % operando1 "Digita il primo operando: ";
+            % operando2 "Digita il secondo operando: ";
+
+            result := calcola_valore(operando1,operando2,operazione);
+            stampa("Riultato: " & result);
+
+            % continuare "1 per continuare, altro per chiudere";
+        end if;
+    end loop;
+
+    stampa(" " & opd1);
+    stampa("  " & m);
+end main;

@@ -1,0 +1,8 @@
+Fun puntatori(out real r): real
+    return -3.2;
+end Fun;
+
+main
+    real p := 5.4;
+    puntatori(@p);
+end main;

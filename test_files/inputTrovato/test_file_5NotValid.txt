@@ -1,0 +1,11 @@
+Fun funzioneScorretta(integer a, integer b):integer
+    if a = b then
+        return 3.2;
+    else
+        return 4;
+    end if;
+end Fun;
+
+main
+    funzioneScorretta(3,4);
+end main;

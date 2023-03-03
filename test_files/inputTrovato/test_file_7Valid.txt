@@ -1,0 +1,31 @@
+Fun string_fun():string
+    return "ciao";
+end Fun;
+
+Fun int_fun():integer
+    return 5;
+end Fun;
+
+Fun real_fun():real
+    return 3.3;
+end Fun;
+
+main
+    var a := 3, b := 3.2, c := "ciao";
+    integer a2, b2, c2;
+    real a3, b3, c3;
+    string a4 := c, b4, c4;
+
+    c := string_fun();
+    a := int_fun();
+    a2 := int_fun();
+    a3 := real_fun();
+    c4 := "ciao";
+
+    ?. c;
+    ?. a;
+    ?. a2;
+    ?.a3;
+    ?. c4;
+
+end main;

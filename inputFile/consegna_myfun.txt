@@ -1,0 +1,85 @@
+# funzioni di supporto
+fun add(real a, real b):real
+	return a + b;
+end fun;
+
+fun mult(integer a, integer b):integer
+	integer i := 0;
+	integer result := 0;
+	while i < b loop
+		result := result + a;
+		i := i + 1;
+	end loop;
+	return result;
+end fun;
+
+fun division(real a, real b):integer
+	return a div b;
+end fun;
+
+fun power(real a, real b):real
+	return a ^ b;
+end fun;
+
+fun fibonacci(integer a):integer
+	if a <= 1 then
+		return a;
+	end if;
+
+	return fibonacci(a-1) + fibonacci(a-2);
+end fun;
+
+main
+    string ans;
+    real real_a, real_b, real_result := -1.0;
+    integer int_a, int_b, int_result := -1;
+
+    ?. 'Welcome!';
+    ?. 'Enter a number corresponding to the operations below: ';
+    ?. '1. The sum of two numbers';
+   	?. '2. Multiplying two numbers using the sum ';
+   	?. '3. the integer division between two positive numbers';
+   	?. '4. exponentiation';
+   	?. '5. the Fibonacci sequence ';
+   	?. '';
+
+    % ans;
+
+    if(ans != '1' or ans != '2' or ans != '3' or ans != '4' or ans != '5') then
+        ?. 'Insert the correct number below';
+    end if;
+
+   	if ans = '1' then
+   		% real_a "Insert the 1st value:\t";
+   		% real_b "Insert the 2nd value:\t";
+   		real_result := add(real_a, real_b);
+   	end if;
+
+   	if ans = '2' then
+   		% int_a "Insert the 1st value:\t";
+   		% int_b "Insert the 2nd value:\t";
+   		int_result := mult(int_a, int_b);
+   	end if;
+
+   	if ans = '3' then
+   		% real_a "inserisci il primo valore:\t";
+   		% real_b "inserisci il secondo valore:\t";
+   		int_result := division(real_a, real_b);
+   	end if;
+
+   	if ans = '4' then
+   		% real_a "Insert the 1st value:\t";
+   		% real_b "Insert the 2nd value:\t";
+   		real_result := power(real_a, real_b);
+   	end if;
+
+   	if ans = '5' then
+   		% int_a "Enter the n-th number of fibonacci you want to receive:\t";
+   		int_result := fibonacci(int_a);
+   	end if;
+
+    if(ans = '1' or ans = '2' or ans = '3' or ans = '4' or ans = '5')then
+        ?. "Real result: " & real_result;
+        ?. "Int result: " & int_result;
+    end if;
+end main;

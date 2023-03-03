@@ -1,0 +1,8 @@
+Fun real_fun():real
+    return 4.3;
+end Fun;
+
+main
+    var a := 3.2, b := -3, c := "ciao";
+    c := real_fun();
+end main;

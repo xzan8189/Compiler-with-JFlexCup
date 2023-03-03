@@ -1,0 +1,5 @@
+main
+    integer a := 0;
+    real b, c := 3.2, d := 3;
+    b := 3.2;
+end main;
